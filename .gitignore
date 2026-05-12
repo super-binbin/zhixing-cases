@@ -1,2 +1,6 @@
 Thumbs.db
 .DS_Store
+node_modules/
+.github_token
+data.js.backup
+知行案例库_导出.zip

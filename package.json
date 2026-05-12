@@ -1,0 +1,27 @@
+{
+  "name": "education-cases",
+  "version": "1.0.0",
+  "description": "",
+  "main": "data.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/super-binbin/zhixing-cases.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/super-binbin/zhixing-cases/issues"
+  },
+  "homepage": "https://github.com/super-binbin/zhixing-cases#readme",
+  "dependencies": {
+    "adm-zip": "^0.5.17"
+  }
+}
