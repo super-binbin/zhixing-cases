@@ -12,7 +12,6 @@
   var DEFAULT_PASSWORD = 'zhixing2026';
   var SESSION_KEY = 'zx_admin_authed';
 
-  // 获取当前密码（存储在 localStorage，首次使用时设为默认密码）
   function getAdminPassword() {
     var pwd = localStorage.getItem('zx_admin_password');
     if (!pwd) {
@@ -22,42 +21,8 @@
     return pwd;
   }
 
-  function doLogin() {
-    sessionStorage.setItem(SESSION_KEY, '1');
-    document.getElementById('loginOverlay').classList.add('hidden');
-    document.getElementById('adminPage').style.display = 'block';
-    initAdmin(); // 登录后初始化管理功能
-  }
-
-  // 检查是否已登录
-  if (!sessionStorage.getItem(SESSION_KEY)) {
-    document.getElementById('loginOverlay').style.display = 'flex';
-    document.getElementById('adminPage').style.display = 'none';
-
-    document.getElementById('loginBtn').addEventListener('click', function() {
-      var input = document.getElementById('loginPassword').value;
-      if (input === getAdminPassword()) {
-        doLogin();
-      } else {
-        document.getElementById('loginError').textContent = '密码错误，请重试';
-        document.getElementById('loginPassword').value = '';
-      }
-    });
-
-    document.getElementById('loginPassword').addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') document.getElementById('loginBtn').click();
-    });
-
-    return; // 等待登录
-  }
-
-  // 已登录
-  document.getElementById('loginOverlay').classList.add('hidden');
-  document.getElementById('adminPage').style.display = 'block';
-  initAdmin();
-
-  // ---- 所有初始化逻辑包装在此函数中 ----
-  function initAdmin() {
+  // ---- 所有初始化逻辑 ----
+  function startAdmin() {
 
   // ==========================================
   // 一、课程名称编辑
@@ -690,6 +655,33 @@
   setDefaultDate();
   renderCaseList();
 
-  } // 关闭 initAdmin
+  } // 关闭 startAdmin
+
+  // ---- 登录检查 ----
+  if (!sessionStorage.getItem(SESSION_KEY)) {
+    document.getElementById('loginOverlay').style.display = 'flex';
+    document.getElementById('adminPage').style.display = 'none';
+
+    document.getElementById('loginBtn').onclick = function() {
+      var input = document.getElementById('loginPassword').value;
+      if (input === getAdminPassword()) {
+        sessionStorage.setItem(SESSION_KEY, '1');
+        document.getElementById('loginOverlay').classList.add('hidden');
+        document.getElementById('adminPage').style.display = 'block';
+        startAdmin();
+      } else {
+        document.getElementById('loginError').textContent = '密码错误，请重试';
+        document.getElementById('loginPassword').value = '';
+      }
+    };
+
+    document.getElementById('loginPassword').onkeydown = function(e) {
+      if (e.key === 'Enter') document.getElementById('loginBtn').click();
+    };
+  } else {
+    document.getElementById('loginOverlay').classList.add('hidden');
+    document.getElementById('adminPage').style.display = 'block';
+    startAdmin();
+  }
 
 })();
