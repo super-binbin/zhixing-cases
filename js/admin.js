@@ -22,38 +22,42 @@
     return pwd;
   }
 
-  // 检查是否已登录（sessionStorage，关浏览器后需重新登录）
+  function doLogin() {
+    sessionStorage.setItem(SESSION_KEY, '1');
+    document.getElementById('loginOverlay').classList.add('hidden');
+    document.getElementById('adminPage').style.display = 'block';
+    initAdmin(); // 登录后初始化管理功能
+  }
+
+  // 检查是否已登录
   if (!sessionStorage.getItem(SESSION_KEY)) {
-    // 显示登录页，隐藏管理页
     document.getElementById('loginOverlay').style.display = 'flex';
     document.getElementById('adminPage').style.display = 'none';
 
-    // 登录按钮
     document.getElementById('loginBtn').addEventListener('click', function() {
       var input = document.getElementById('loginPassword').value;
-      var currentPwd = getAdminPassword();
-
-      if (input === currentPwd) {
-        sessionStorage.setItem(SESSION_KEY, '1');
-        document.getElementById('loginOverlay').classList.add('hidden');
-        document.getElementById('adminPage').style.display = 'block';
+      if (input === getAdminPassword()) {
+        doLogin();
       } else {
         document.getElementById('loginError').textContent = '密码错误，请重试';
         document.getElementById('loginPassword').value = '';
       }
     });
 
-    // 回车登录
     document.getElementById('loginPassword').addEventListener('keydown', function(e) {
       if (e.key === 'Enter') document.getElementById('loginBtn').click();
     });
 
-    return; // 停止后续初始化
+    return; // 等待登录
   }
 
-  // 已登录，直接显示管理页
+  // 已登录
   document.getElementById('loginOverlay').classList.add('hidden');
   document.getElementById('adminPage').style.display = 'block';
+  initAdmin();
+
+  // ---- 所有初始化逻辑包装在此函数中 ----
+  function initAdmin() {
 
   // ==========================================
   // 一、课程名称编辑
@@ -685,5 +689,7 @@
   renderCourseSelect();
   setDefaultDate();
   renderCaseList();
+
+  } // 关闭 initAdmin
 
 })();
