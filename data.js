@@ -38,28 +38,6 @@ const CASES = [
     files: []
   },
   {
-    id: 'case-mp2lulnq-bsl87',
-    courseId: 'short-video',
-    author: 'sky',
-    date: '2026-05-12',
-    summary: '成功接到商单剪辑',
-    thoughts: '这次在知行学习剪辑收获满满，老师授课是以“如何剪一条商单”为主线进行教学，会在群内解答剪辑中遇到的问题，感受到老师满满真诚与用心。\n学习完成后，也会发布试剪机会，试剪通过就可以开始接商单啦，很荣幸本次通过了试剪筛选！！\n剪商单时还有老师会进行指导修改，这个售后保障实在是太有安全感了，不用担心自己摸索。\n后面学习的同学们，只要踏实练习、坚持沉淀，只要技术过关，大家都能接到商单，一起加油进步！',
-    images: ['assets/images/mp2ltqwi-uhv1ho.png'],
-    videos: ['assets/videos/mp2lttp0-cd5ivf.mp4'],
-    files: []
-  },
-  {
-    id: 'case-mp2o6opo-bxcih',
-    courseId: 'short-video',
-    author: 'Rex',
-    date: '2026-05-12',
-    summary: '成功接到剪辑商单',
-    thoughts: '课程老师都特别负责，有问必答。学完全部课程后顺利进入接单群,完成了人生第一个剪辑商单。后面再积累一些作品，找一份对口的工作完全没问题。重要的是，这门课让我真正掌握了一项可以变现的技能。',
-    images: ['assets/images/mp2o1cvo-e1eqcz.jpg'],
-    videos: ['assets/videos/mp2o1e0y-7ymr8t.mp4'],
-    files: []
-  },
-  {
     id: 'case-001',
     courseId: 'short-video',
     author: '李婷',

@@ -76,6 +76,14 @@ function getAllCases() {
     cases = cases.concat(customCases);
   }
 
+  // 6. 按 ID 去重（保留后出现的版本，即 localStorage 覆盖 data.js）
+  var seen = {};
+  cases = cases.filter(function(c) {
+    if (seen[c.id]) return false;
+    seen[c.id] = true;
+    return true;
+  });
+
   // 按日期降序
   cases.sort(function(a, b) { return new Date(b.date) - new Date(a.date); });
   return cases;
