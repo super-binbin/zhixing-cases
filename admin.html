@@ -17,7 +17,20 @@
 </head>
 <body style="background:#f1f5f9;">
 
-  <div class="admin-page">
+  <!-- 管理员登录遮罩 -->
+  <div class="login-overlay" id="loginOverlay">
+    <div class="login-box">
+      <div class="login-icon">🔐</div>
+      <h2>管理员登录</h2>
+      <p style="font-size:13px;color:#94a3b8;margin-bottom:20px;">请输入管理密码以访问案例管理功能</p>
+      <input type="password" id="loginPassword" placeholder="请输入管理密码" autocomplete="off">
+      <button class="btn btn-primary" id="loginBtn" style="width:100%;margin-top:12px;">登 录</button>
+      <p class="login-error" id="loginError"></p>
+      <p style="font-size:12px;color:#94a3b8;margin-top:12px;">默认密码：zhixing2026（登录后可在设置中修改）</p>
+    </div>
+  </div>
+
+  <div class="admin-page" id="adminPage" style="display:none;">
     <a href="index.html" class="back-link">← 返回案例列表</a>
     <h1>⚙️ 案例管理</h1>
 
@@ -149,6 +162,19 @@
       <button class="btn btn-primary copy-btn" id="addCourseBtn" style="margin-top:12px;">➕ 添加新课程</button>
       <button class="btn btn-save copy-btn" id="saveCourseBtn">💾 保存课程设置</button>
       <span id="courseSaveMsg" style="margin-left:10px;font-size:13px;color:#10b981;display:none;">✅ 已保存</span>
+    </div>
+
+    <!-- ====== 修改管理密码 ====== -->
+    <div class="admin-section">
+      <h2>🔑 修改管理密码</h2>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;">
+        <div class="form-group" style="margin-bottom:0;">
+          <label>新密码</label>
+          <input type="password" id="newPassword" placeholder="输入新密码" style="width:200px;">
+        </div>
+        <button class="btn btn-primary" id="changePwdBtn">修改密码</button>
+        <span id="pwdMsg" style="font-size:13px;color:#10b981;display:none;">✅ 密码已修改</span>
+      </div>
     </div>
 
     <!-- ====== 使用说明 ====== -->

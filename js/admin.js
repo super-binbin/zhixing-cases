@@ -6,6 +6,56 @@
   'use strict';
 
   // ==========================================
+  // 零、管理员密码验证
+  // ==========================================
+
+  var DEFAULT_PASSWORD = 'zhixing2026';
+  var SESSION_KEY = 'zx_admin_authed';
+
+  // 获取当前密码（存储在 localStorage，首次使用时设为默认密码）
+  function getAdminPassword() {
+    var pwd = localStorage.getItem('zx_admin_password');
+    if (!pwd) {
+      pwd = DEFAULT_PASSWORD;
+      localStorage.setItem('zx_admin_password', pwd);
+    }
+    return pwd;
+  }
+
+  // 检查是否已登录（sessionStorage，关浏览器后需重新登录）
+  if (!sessionStorage.getItem(SESSION_KEY)) {
+    // 显示登录页，隐藏管理页
+    document.getElementById('loginOverlay').style.display = 'flex';
+    document.getElementById('adminPage').style.display = 'none';
+
+    // 登录按钮
+    document.getElementById('loginBtn').addEventListener('click', function() {
+      var input = document.getElementById('loginPassword').value;
+      var currentPwd = getAdminPassword();
+
+      if (input === currentPwd) {
+        sessionStorage.setItem(SESSION_KEY, '1');
+        document.getElementById('loginOverlay').classList.add('hidden');
+        document.getElementById('adminPage').style.display = 'block';
+      } else {
+        document.getElementById('loginError').textContent = '密码错误，请重试';
+        document.getElementById('loginPassword').value = '';
+      }
+    });
+
+    // 回车登录
+    document.getElementById('loginPassword').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') document.getElementById('loginBtn').click();
+    });
+
+    return; // 停止后续初始化
+  }
+
+  // 已登录，直接显示管理页
+  document.getElementById('loginOverlay').classList.add('hidden');
+  document.getElementById('adminPage').style.display = 'block';
+
+  // ==========================================
   // 一、课程名称编辑
   // ==========================================
 
@@ -618,6 +668,18 @@
     var ids = all.map(function(c) { return c.id; });
     localStorage.setItem('zx_synced_ids', JSON.stringify(ids));
   }
+
+  // --- 修改密码 ---
+  document.getElementById('changePwdBtn').addEventListener('click', function() {
+    var newPwd = document.getElementById('newPassword').value.trim();
+    if (!newPwd) { alert('请输入新密码'); return; }
+    if (newPwd.length < 4) { alert('密码至少 4 位'); return; }
+    localStorage.setItem('zx_admin_password', newPwd);
+    document.getElementById('newPassword').value = '';
+    var msg = document.getElementById('pwdMsg');
+    msg.style.display = 'inline';
+    setTimeout(function() { msg.style.display = 'none'; }, 2000);
+  });
 
   renderCourseEditTable();
   renderCourseSelect();
