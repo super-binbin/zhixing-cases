@@ -490,12 +490,12 @@
     });
   });
 
-  // --- 导出 data.js + 文件 ---
+  // --- 导出 data.js + 文件（打包成 zip） ---
   document.getElementById('exportBtn').addEventListener('click', function() {
     var all = getAllCases();
 
     // 收集所有 idb:// 文件并转换为常规路径
-    var idbFiles = {}; // { idbName: { blob, regularPath } }
+    var idbFiles = {}; // { idbName: { path, blob } }
 
     function convertPath(p) {
       if (isIdbPath(p)) {
@@ -533,45 +533,57 @@
 
     var content = header + items.join(',\n') + '\n];\n';
 
-    // 1. 下载 data.js
-    var blob = new Blob([content], { type: 'application/javascript' });
-    var url = URL.createObjectURL(blob);
-    var a = document.createElement('a');
-    a.href = url;
-    a.download = 'data.js';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-
-    // 2. 下载所有 idb:// 文件为实际文件
     var idbNames = Object.keys(idbFiles);
+
     if (idbNames.length === 0) {
-      alert('✅ data.js 已下载！\n\n案例中没有需要导出的文件，直接上传 data.js 到 GitHub 即可。');
+      // 没有 IndexedDB 文件，直接下载 data.js
+      var blob = new Blob([content], { type: 'application/javascript' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = 'data.js';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      alert('✅ data.js 已下载！直接上传到 GitHub 即可。');
       return;
     }
 
-    // 异步下载所有文件
-    var downloaded = 0;
-    idbNames.forEach(function(name) {
-      idbGetFile(name).then(function(record) {
+    // 有 IndexedDB 文件 → 打包成 zip
+    if (typeof JSZip === 'undefined') {
+      alert('JSZip 库未加载，请检查网络后刷新重试。');
+      return;
+    }
+
+    var zip = new JSZip();
+
+    // 添加 data.js 到 zip 根目录
+    zip.file('data.js', content);
+
+    // 收集所有 IndexedDB 文件
+    var promises = idbNames.map(function(name) {
+      return idbGetFile(name).then(function(record) {
         if (record && record.blob) {
-          var fileBlob = record.blob;
-          var fileUrl = URL.createObjectURL(fileBlob);
-          var a2 = document.createElement('a');
-          a2.href = fileUrl;
-          a2.download = name;
-          document.body.appendChild(a2);
-          a2.click();
-          document.body.removeChild(a2);
-          URL.revokeObjectURL(fileUrl);
+          // 根据文件类型放到对应子文件夹
+          var path = idbFiles[name].path;
+          zip.file(path, record.blob);
         }
-        downloaded++;
-        if (downloaded === idbNames.length) {
-          alert('✅ 导出完成！\n\n1. data.js 已下载\n2. ' + idbNames.length + ' 个文件已下载\n\n上传到 GitHub 时：\n- data.js 替换根目录的同名文件\n- 图片文件放到 assets/images/ 文件夹\n- 视频文件放到 assets/videos/ 文件夹\n- 压缩包放到 assets/files/ 文件夹');
-        }
-      }).catch(function() {
-        downloaded++;
+      }).catch(function() {});
+    });
+
+    Promise.all(promises).then(function() {
+      zip.generateAsync({ type: 'blob' }).then(function(zipBlob) {
+        var zipUrl = URL.createObjectURL(zipBlob);
+        var a = document.createElement('a');
+        a.href = zipUrl;
+        a.download = '知行案例库_导出.zip';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(zipUrl);
+
+        alert('✅ 导出完成！\n\n下载了一个 zip 文件，里面包含：\n- data.js（已转换路径）\n- assets/images/ 下的所有图片\n- assets/videos/ 下的所有视频\n- assets/files/ 下的所有附件\n\n上传到 GitHub 时，解压 zip 把里面所有文件和文件夹拖进去即可。');
       });
     });
   });
