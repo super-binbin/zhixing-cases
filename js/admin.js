@@ -666,9 +666,7 @@
       var input = document.getElementById('loginPassword').value;
       if (input === getAdminPassword()) {
         sessionStorage.setItem(SESSION_KEY, '1');
-        document.getElementById('loginOverlay').classList.add('hidden');
-        document.getElementById('adminPage').style.display = 'block';
-        startAdmin();
+        location.reload(); // 刷新后自动进入管理页
       } else {
         document.getElementById('loginError').textContent = '密码错误，请重试';
         document.getElementById('loginPassword').value = '';
