@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>管理案例 - 知行案例库</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .highlight-section {
+      border-left: 4px solid var(--primary);
+      background: #fafbff;
+    }
+    .highlight-section h2 {
+      color: var(--primary);
+    }
+  </style>
+</head>
+<body style="background:#f1f5f9;">
+
+  <div class="admin-page">
+    <a href="index.html" class="back-link">← 返回案例列表</a>
+    <h1>⚙️ 案例管理</h1>
+
+    <!-- ====== 编辑 / 删除已有案例（最显眼位置） ====== -->
+    <div class="admin-section highlight-section" style="padding:28px;">
+      <h2 style="font-size:22px;">📝 编辑 / 删除已有案例 <span style="font-size:14px;color:#94a3b8;font-weight:400;" id="caseCountLabel"></span></h2>
+      <p style="font-size:13px;color:#64748b;margin-bottom:16px;">
+        点击 <strong style="color:#4f46e5;">✏️ 编辑</strong> 加载到下方表单修改，点击 <strong style="color:#ef4444;">🗑 删除</strong> 移除案例。
+      </p>
+      <div style="margin-bottom:16px;">
+        <input type="text" id="adminSearchInput" placeholder="🔍 搜索作者名称..." style="width:100%;max-width:320px;padding:10px 16px;border:1px solid var(--border);border-radius:24px;font-size:14px;font-family:inherit;">
+      </div>
+      <input type="hidden" id="editCaseId" value="">
+      <div id="caseList"></div>
+    </div>
+
+    <!-- ====== 新增案例表单 ====== -->
+    <div class="admin-section" id="addSection">
+      <h2>➕ 新增案例 <span id="editModeLabel" style="font-size:14px;color:#ef4444;font-weight:400;display:none;">（正在编辑，点「保存案例」更新）</span></h2>
+      <p style="font-size:13px;color:#94a3b8;margin-bottom:14px;">
+        填写案例信息，拖拽上传文件，点击「💾 保存案例」即可。案例自动保存到浏览器，<strong>刷新主页立即可见</strong>。
+      </p>
+
+      <div class="form-group">
+        <label>所属课程 *</label>
+        <select id="caseCourse"></select>
+      </div>
+
+      <div class="form-group">
+        <label>作者 *</label>
+        <input type="text" id="caseAuthor" placeholder="例如：张三">
+      </div>
+
+      <div class="form-group">
+        <label>日期 *</label>
+        <input type="date" id="caseDate">
+      </div>
+
+      <div class="form-group">
+        <label>摘要（卡片标题）*</label>
+        <input type="text" id="caseSummary" placeholder="简短概括案例内容，显示在卡片上" maxlength="100">
+      </div>
+
+      <div class="form-group">
+        <label>寄语</label>
+        <textarea id="caseThoughts" rows="6" placeholder="详细描述教学反思、经验总结等..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>案例图片（拖拽上传）</label>
+        <div class="drop-zone" id="dropImages">
+          <div class="drop-zone-icon">🖼️</div>
+          <p class="drop-zone-text">拖拽图片到这里，或点击选择</p>
+          <p class="drop-zone-hint">支持 JPG / PNG / GIF / WebP，可多张同时拖入</p>
+          <input type="file" id="fileInputImages" accept="image/*" multiple hidden>
+        </div>
+        <div class="file-previews" id="previewImages"></div>
+        <details style="margin-top:8px;">
+          <summary style="font-size:12px;color:#94a3b8;cursor:pointer;">或手动填写文件路径</summary>
+          <input type="text" id="caseImagesManual" placeholder="assets/images/photo1.jpg, assets/images/photo2.png" style="margin-top:4px;">
+        </details>
+        <input type="hidden" id="caseImages">
+      </div>
+
+      <div class="form-group">
+        <label>案例视频（拖拽上传）</label>
+        <div class="drop-zone" id="dropVideos">
+          <div class="drop-zone-icon">🎬</div>
+          <p class="drop-zone-text">拖拽 MP4 视频到这里，或点击选择</p>
+          <p class="drop-zone-hint">支持 MP4 格式，可多次拖入多个视频</p>
+          <input type="file" id="fileInputVideos" accept="video/mp4" hidden>
+        </div>
+        <div class="file-previews" id="previewVideos"></div>
+        <details style="margin-top:8px;">
+          <summary style="font-size:12px;color:#94a3b8;cursor:pointer;">或手动填写文件路径</summary>
+          <input type="text" id="caseVideosManual" placeholder="assets/videos/demo.mp4" style="margin-top:4px;">
+        </details>
+        <input type="hidden" id="caseVideos">
+      </div>
+
+      <div class="form-group">
+        <label>附件（ZIP 压缩包，拖拽上传）</label>
+        <div class="drop-zone" id="dropFiles">
+          <div class="drop-zone-icon">📦</div>
+          <p class="drop-zone-text">拖拽 ZIP 文件到这里，或点击选择</p>
+          <p class="drop-zone-hint warn">⚠️ 单个文件不得超过 45MB</p>
+          <input type="file" id="fileInputFiles" accept=".zip" hidden>
+        </div>
+        <div class="file-previews" id="previewFiles"></div>
+        <details style="margin-top:8px;">
+          <summary style="font-size:12px;color:#94a3b8;cursor:pointer;">或手动填写文件路径</summary>
+          <input type="text" id="caseFilesManual" placeholder="assets/files/material.zip" style="margin-top:4px;">
+        </details>
+        <input type="hidden" id="caseFiles">
+      </div>
+
+      <button class="btn btn-primary" id="saveCaseBtn" style="font-size:16px;padding:12px 32px;">💾 保存案例</button>
+      <button class="btn btn-secondary copy-btn" id="clearFormBtn">🗑️ 清空表单</button>
+      <button class="btn btn-secondary copy-btn" id="cancelEditBtn" style="display:none;">取消编辑</button>
+      <span id="saveMsg" style="margin-left:14px;font-size:14px;color:#10b981;display:none;">✅ 保存成功！刷新主页即可查看</span>
+      <span id="saveError" style="margin-left:14px;font-size:13px;color:#ef4444;display:none;"></span>
+    </div>
+
+    <!-- ====== 课程设置 ====== -->
+    <div class="admin-section">
+      <h2>📋 课程设置</h2>
+      <p style="font-size:13px;color:#94a3b8;margin-bottom:14px;">
+        修改课程名称、新增或删除课程后点击"保存"。数据保存在浏览器本地。
+      </p>
+      <table class="course-edit-table">
+        <thead>
+          <tr>
+            <th>课程 ID</th>
+            <th>课程名称</th>
+            <th>标签颜色</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="courseEditBody"></tbody>
+      </table>
+      <button class="btn btn-primary copy-btn" id="addCourseBtn" style="margin-top:12px;">➕ 添加新课程</button>
+      <button class="btn btn-save copy-btn" id="saveCourseBtn">💾 保存课程设置</button>
+      <span id="courseSaveMsg" style="margin-left:10px;font-size:13px;color:#10b981;display:none;">✅ 已保存</span>
+    </div>
+
+    <!-- ====== 使用说明 ====== -->
+    <div class="admin-section">
+      <h2>📖 使用说明</h2>
+      <div class="thoughts-content" style="font-size:14px;">
+        <p><strong>新增案例：</strong>在「新增案例」区域填写信息 → 拖拽文件 → 点「💾 保存案例」。</p>
+        <p><strong>编辑案例：</strong>在顶部「编辑已有案例」表格中点「✏️ 编辑」→ 表单自动填充 → 修改 → 点「💾 保存案例」。</p>
+        <p><strong>删除案例：</strong>在顶部表格中点「🗑 删除」→ 确认。</p>
+        <p style="margin-top:8px;color:#94a3b8;font-size:13px;">
+          ⚠️ 案例保存在当前浏览器中。data.js 里的初始案例所有人都有；通过管理页添加的案例仅保存在当前浏览器。
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>

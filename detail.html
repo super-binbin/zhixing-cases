@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>案例详情 - 知行案例库</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body style="background:#f1f5f9;">
+
+  <div class="detail-page">
+    <a href="index.html" class="back-link">← 返回案例列表</a>
+
+    <div class="detail-header">
+      <h1 id="detailTitle"></h1>
+      <div class="detail-meta">
+        <span class="card-tag" id="detailTag"></span>
+        <span id="detailAuthor"></span>
+        <span id="detailDate"></span>
+      </div>
+    </div>
+
+    <!-- 感想 -->
+    <div class="detail-body" id="thoughtsSection" style="display:none;">
+      <h2>📝 寄语</h2>
+      <div class="thoughts-content" id="thoughtsContent"></div>
+    </div>
+
+    <!-- 图片 -->
+    <div class="detail-body" id="imagesSection" style="display:none;">
+      <h2>🖼️ 案例图片</h2>
+      <div class="image-grid" id="imageGrid"></div>
+    </div>
+
+    <!-- 视频 -->
+    <div class="detail-body" id="videosSection" style="display:none;">
+      <h2>🎬 案例视频</h2>
+      <div id="videoList"></div>
+    </div>
+
+    <!-- 附件 -->
+    <div class="detail-body" id="filesSection" style="display:none;">
+      <h2>📦 附件下载</h2>
+      <ul class="file-list" id="fileList"></ul>
+    </div>
+  </div>
+
+  <!-- 灯箱 -->
+  <div class="lightbox" id="lightbox">
+    <span class="close-btn">&times;</span>
+    <img src="" alt="预览图片">
+  </div>
+
+  <!-- ZIP 预览弹窗 -->
+  <div class="modal-overlay" id="zipModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="zipModalTitle">压缩包内容</h3>
+        <button class="modal-close" id="zipModalClose">&times;</button>
+      </div>
+      <div class="modal-body" id="zipModalBody"></div>
+    </div>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="js/common.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <script src="js/detail.js"></script>
+</body>
+</html>

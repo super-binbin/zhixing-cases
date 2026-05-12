@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>知行案例库</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="app-layout">
+
+  <!-- 移动端遮罩 -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- 侧边栏 -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <span class="icon">📚</span>
+      <span>知行案例库</span>
+    </div>
+    <p class="sidebar-subtitle">记录教学实践，沉淀集体智慧</p>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">课程分类</div>
+      <button class="course-filter active" data-course="all">
+        <span class="course-dot" style="background:#a5b4fc;"></span>
+        全部课程
+      </button>
+      <div id="courseFilters"></div>
+    </div>
+
+    <div class="sidebar-stats" id="sidebarStats">
+      <div class="stat-row"><span>总案例</span><span class="stat-val" id="statTotal">0</span></div>
+      <div class="stat-row"><span>本月新增</span><span class="stat-val" id="statMonth">0</span></div>
+    </div>
+
+    <div class="sidebar-chart-trigger" id="sidebarChartTrigger">
+      <span>📈 案例新增趋势</span>
+      <span class="trigger-arrow">▶</span>
+    </div>
+  </aside>
+
+  <!-- 主内容 -->
+  <main class="main-content">
+    <!-- 移动端菜单按钮 -->
+    <button class="menu-toggle" id="menuToggle" aria-label="菜单">☰</button>
+
+    <!-- 顶部搜索栏 -->
+    <div class="topbar">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="搜索作者名称...">
+      </div>
+      <button class="topbar-btn" id="sortBtn">🕐 最新优先</button>
+      <a href="admin.html" class="topbar-btn admin-btn">⚙️ 管理案例</a>
+    </div>
+
+    <!-- 统计卡片 -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-num" id="statAll">0</div>
+        <div class="stat-label">全部案例</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="statVideo">0</div>
+        <div class="stat-label">短视频剪辑实训</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="statShop">0</div>
+        <div class="stat-label">小红书带货电商</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="statAi">0</div>
+        <div class="stat-label">AI兴趣激发</div>
+      </div>
+    </div>
+
+    <!-- 案例卡片区 -->
+    <div class="case-grid" id="caseGrid"></div>
+    <div class="empty-state" id="emptyState" style="display:none;">
+      <div class="empty-icon">📭</div>
+      <p>没有匹配的案例</p>
+    </div>
+
+  </main>
+
+</div>
+
+<!-- 时间轴弹窗 -->
+<div class="chart-modal-overlay" id="chartModal">
+  <div class="chart-modal">
+    <div class="chart-modal-header">
+      <h2>📈 案例新增趋势</h2>
+      <button class="chart-modal-close" id="chartModalClose">&times;</button>
+    </div>
+    <div class="chart-container" id="timelineChart"></div>
+  </div>
+</div>
+
+<!-- 脚本 -->
+<script src="data.js"></script>
+<script src="js/common.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
