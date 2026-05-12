@@ -490,25 +490,44 @@
     });
   });
 
-  // --- 导出 data.js + 文件（打包成 zip） ---
+  // --- 导出 data.js + 文件（打包成 zip，支持增量） ---
   document.getElementById('exportBtn').addEventListener('click', function() {
     var all = getAllCases();
+    var incremental = document.getElementById('incrementalExport').checked;
 
-    // 收集所有 idb:// 文件并转换为常规路径
+    // 获取已同步的案例 ID 列表
+    var syncedIds = [];
+    var syncedData = localStorage.getItem('zx_synced_ids');
+    if (syncedData) {
+      try { syncedIds = JSON.parse(syncedData); } catch(e) {}
+    }
+
+    // 找出未同步的案例 ID
+    var unsyncedIds = all.map(function(c) { return c.id; }).filter(function(id) {
+      return syncedIds.indexOf(id) === -1;
+    });
+
+    // 只收集未同步案例的 idb:// 文件
     var idbFiles = {}; // { idbName: { path, blob } }
+    var skippedFiles = 0;
 
-    function convertPath(p) {
+    function convertPath(p, caseId) {
       if (isIdbPath(p)) {
         var name = getIdbName(p);
         var regularPath = idbToRegularPath(p);
-        idbFiles[name] = { path: regularPath, blob: null };
+        if (incremental && syncedIds.indexOf(caseId) >= 0) {
+          // 已同步案例，跳过文件导出
+          skippedFiles++;
+        } else {
+          idbFiles[name] = { path: regularPath, blob: null };
+        }
         return regularPath;
       }
       return p;
     }
 
-    function convertList(list) {
-      return (list || []).map(function(p) { return convertPath(p); });
+    function convertList(list, caseId) {
+      return (list || []).map(function(p) { return convertPath(p, caseId); });
     }
 
     var header = '/* ============================================\n' +
@@ -525,9 +544,9 @@
         "    date: '" + c.date + "',\n" +
         "    summary: '" + c.summary.replace(/'/g, "\\'") + "',\n" +
         "    thoughts: '" + (c.thoughts || '').replace(/'/g, "\\'").replace(/\n/g, '\\n') + "',\n" +
-        "    images: [" + convertList(c.images).map(function(i) { return "'" + i + "'"; }).join(', ') + "],\n" +
-        "    videos: [" + convertList(c.videos).map(function(v) { return "'" + v + "'"; }).join(', ') + "],\n" +
-        "    files: [" + convertList(c.files).map(function(f) { return "'" + f + "'"; }).join(', ') + "]\n" +
+        "    images: [" + convertList(c.images, c.id).map(function(i) { return "'" + i + "'"; }).join(', ') + "],\n" +
+        "    videos: [" + convertList(c.videos, c.id).map(function(v) { return "'" + v + "'"; }).join(', ') + "],\n" +
+        "    files: [" + convertList(c.files, c.id).map(function(f) { return "'" + f + "'"; }).join(', ') + "]\n" +
         '  }';
     });
 
@@ -535,8 +554,11 @@
 
     var idbNames = Object.keys(idbFiles);
 
+    // 无文件或全部跳过 → 只下载 data.js
     if (idbNames.length === 0) {
-      // 没有 IndexedDB 文件，直接下载 data.js
+      if (incremental && skippedFiles > 0) {
+        alert('✅ 所有案例文件已同步过，仅下载 data.js。\n\n' + skippedFiles + ' 个文件被跳过（已同步）。');
+      }
       var blob = new Blob([content], { type: 'application/javascript' });
       var url = URL.createObjectURL(blob);
       var a = document.createElement('a');
@@ -546,28 +568,26 @@
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      alert('✅ data.js 已下载！直接上传到 GitHub 即可。');
+
+      // 标记全部为已同步
+      markAllSynced(all);
       return;
     }
 
-    // 有 IndexedDB 文件 → 打包成 zip
+    // 有未同步文件 → 打包 zip
     if (typeof JSZip === 'undefined') {
       alert('JSZip 库未加载，请检查网络后刷新重试。');
       return;
     }
 
     var zip = new JSZip();
-
-    // 添加 data.js 到 zip 根目录
     zip.file('data.js', content);
 
-    // 收集所有 IndexedDB 文件
     var promises = idbNames.map(function(name) {
       return idbGetFile(name).then(function(record) {
         if (record && record.blob) {
-          // 根据文件类型放到对应子文件夹
-          var path = idbFiles[name].path;
-          zip.file(path, record.blob);
+          var filePath = idbFiles[name].path;
+          zip.file(filePath, record.blob);
         }
       }).catch(function() {});
     });
@@ -583,10 +603,21 @@
         document.body.removeChild(a);
         URL.revokeObjectURL(zipUrl);
 
-        alert('✅ 导出完成！\n\n下载了一个 zip 文件，里面包含：\n- data.js（已转换路径）\n- assets/images/ 下的所有图片\n- assets/videos/ 下的所有视频\n- assets/files/ 下的所有附件\n\n上传到 GitHub 时，解压 zip 把里面所有文件和文件夹拖进去即可。');
+        var msg = '✅ 导出完成！\n\nzip 包含：\n- data.js（完整案例数据）\n- ' + idbNames.length + ' 个新文件';
+        if (skippedFiles > 0) msg += '\n- 跳过 ' + skippedFiles + ' 个已同步文件';
+
+        alert(msg);
+
+        // 标记全部为已同步
+        markAllSynced(all);
       });
     });
   });
+
+  function markAllSynced(all) {
+    var ids = all.map(function(c) { return c.id; });
+    localStorage.setItem('zx_synced_ids', JSON.stringify(ids));
+  }
 
   renderCourseEditTable();
   renderCourseSelect();

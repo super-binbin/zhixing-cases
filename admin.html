@@ -25,10 +25,15 @@
     <div class="admin-section highlight-section" style="padding:28px;">
       <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
         <h2 style="font-size:22px;">📝 编辑 / 删除已有案例 <span style="font-size:14px;color:#94a3b8;font-weight:400;" id="caseCountLabel"></span></h2>
-        <button class="btn btn-primary" id="exportBtn" style="white-space:nowrap;">📥 导出 data.js</button>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <button class="btn btn-primary" id="exportBtn" style="white-space:nowrap;">📥 导出并同步</button>
+          <label style="font-size:13px;color:#64748b;cursor:pointer;display:flex;align-items:center;gap:4px;">
+            <input type="checkbox" id="incrementalExport" checked> 仅导出新增/修改的案例文件
+          </label>
+        </div>
       </div>
       <p style="font-size:13px;color:#64748b;margin-bottom:16px;">
-        点击 <strong style="color:#4f46e5;">✏️ 编辑</strong> 加载到下方表单修改，点击 <strong style="color:#ef4444;">🗑 删除</strong> 移除案例。点 <strong style="color:#4f46e5;">📥 导出 data.js</strong> 下载完整数据文件，替换 GitHub 仓库中的同名文件即可更新网站。
+        点击 <strong style="color:#4f46e5;">✏️ 编辑</strong> 加载到下方表单修改，点击 <strong style="color:#ef4444;">🗑 删除</strong> 移除案例。勾选「仅导出新增/修改」后 zip 只含新案例的文件，体积小、上传快。
       </p>
       <div style="margin-bottom:16px;">
         <input type="text" id="adminSearchInput" placeholder="🔍 搜索作者名称..." style="width:100%;max-width:320px;padding:10px 16px;border:1px solid var(--border);border-radius:24px;font-size:14px;font-family:inherit;">
