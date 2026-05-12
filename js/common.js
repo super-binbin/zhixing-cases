@@ -310,6 +310,19 @@ function idbGetBlobUrlSync(filename, blob) {
 }
 
 // 根据路径获取 Blob URL（自动判断 idb:// 还是普通路径）
+// idb:// 路径转常规路径（用于 IndexedDB 找不到时回退到服务器文件）
+function idbToRegularPath(idbPath) {
+  var name = getIdbName(idbPath);
+  var ext = name.split('.').pop().toLowerCase();
+  if (['jpg','jpeg','png','gif','webp','svg'].indexOf(ext) >= 0) {
+    return 'assets/images/' + name;
+  }
+  if (ext === 'mp4' || ext === 'webm' || ext === 'mov') {
+    return 'assets/videos/' + name;
+  }
+  return 'assets/files/' + name;
+}
+
 function getFileUrl(path) {
   return new Promise(function(resolve) {
     if (isIdbPath(path)) {
@@ -323,9 +336,13 @@ function getFileUrl(path) {
           var url = idbGetBlobUrlSync(name, record.blob);
           resolve(url);
         } else {
-          resolve(null);
+          // IndexedDB 找不到，回退尝试服务器路径
+          resolve(idbToRegularPath(path));
         }
-      }).catch(function() { resolve(null); });
+      }).catch(function() {
+        // 出错也回退尝试服务器路径
+        resolve(idbToRegularPath(path));
+      });
     } else {
       resolve(path); // 普通文件路径直接返回
     }

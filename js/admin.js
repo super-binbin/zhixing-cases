@@ -490,6 +490,92 @@
     });
   });
 
+  // --- 导出 data.js + 文件 ---
+  document.getElementById('exportBtn').addEventListener('click', function() {
+    var all = getAllCases();
+
+    // 收集所有 idb:// 文件并转换为常规路径
+    var idbFiles = {}; // { idbName: { blob, regularPath } }
+
+    function convertPath(p) {
+      if (isIdbPath(p)) {
+        var name = getIdbName(p);
+        var regularPath = idbToRegularPath(p);
+        idbFiles[name] = { path: regularPath, blob: null };
+        return regularPath;
+      }
+      return p;
+    }
+
+    function convertList(list) {
+      return (list || []).map(function(p) { return convertPath(p); });
+    }
+
+    var header = '/* ============================================\n' +
+      '   知行案例库 — 案例数据\n' +
+      '   由管理页导出，可直接替换 GitHub 仓库中的 data.js\n' +
+      '   ============================================ */\n\n' +
+      'const CASES = [\n';
+
+    var items = all.map(function(c) {
+      return '  {\n' +
+        "    id: '" + c.id + "',\n" +
+        "    courseId: '" + c.courseId + "',\n" +
+        "    author: '" + c.author.replace(/'/g, "\\'") + "',\n" +
+        "    date: '" + c.date + "',\n" +
+        "    summary: '" + c.summary.replace(/'/g, "\\'") + "',\n" +
+        "    thoughts: '" + (c.thoughts || '').replace(/'/g, "\\'").replace(/\n/g, '\\n') + "',\n" +
+        "    images: [" + convertList(c.images).map(function(i) { return "'" + i + "'"; }).join(', ') + "],\n" +
+        "    videos: [" + convertList(c.videos).map(function(v) { return "'" + v + "'"; }).join(', ') + "],\n" +
+        "    files: [" + convertList(c.files).map(function(f) { return "'" + f + "'"; }).join(', ') + "]\n" +
+        '  }';
+    });
+
+    var content = header + items.join(',\n') + '\n];\n';
+
+    // 1. 下载 data.js
+    var blob = new Blob([content], { type: 'application/javascript' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'data.js';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    // 2. 下载所有 idb:// 文件为实际文件
+    var idbNames = Object.keys(idbFiles);
+    if (idbNames.length === 0) {
+      alert('✅ data.js 已下载！\n\n案例中没有需要导出的文件，直接上传 data.js 到 GitHub 即可。');
+      return;
+    }
+
+    // 异步下载所有文件
+    var downloaded = 0;
+    idbNames.forEach(function(name) {
+      idbGetFile(name).then(function(record) {
+        if (record && record.blob) {
+          var fileBlob = record.blob;
+          var fileUrl = URL.createObjectURL(fileBlob);
+          var a2 = document.createElement('a');
+          a2.href = fileUrl;
+          a2.download = name;
+          document.body.appendChild(a2);
+          a2.click();
+          document.body.removeChild(a2);
+          URL.revokeObjectURL(fileUrl);
+        }
+        downloaded++;
+        if (downloaded === idbNames.length) {
+          alert('✅ 导出完成！\n\n1. data.js 已下载\n2. ' + idbNames.length + ' 个文件已下载\n\n上传到 GitHub 时：\n- data.js 替换根目录的同名文件\n- 图片文件放到 assets/images/ 文件夹\n- 视频文件放到 assets/videos/ 文件夹\n- 压缩包放到 assets/files/ 文件夹');
+        }
+      }).catch(function() {
+        downloaded++;
+      });
+    });
+  });
+
   renderCourseEditTable();
   renderCourseSelect();
   setDefaultDate();
