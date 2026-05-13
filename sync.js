@@ -44,12 +44,50 @@ doSync(TOKEN);
 
 // ---- 主流程 ----
 async function doSync(token) {
-  // 2. 检查 zip 文件
-  if (!fs.existsSync(ZIP_FILE)) {
-    console.log('错误：找不到「知行案例库_导出.zip」');
-    console.log('请先把导出的 zip 文件放到本目录下');
-    console.log('目录：' + REPO_DIR);
+  // 2. 查找 zip 文件（兼容各种文件名变体和下载位置）
+  var zipPath = null;
+  var searchDirs = [
+    REPO_DIR,
+    path.join(require('os').homedir(), 'Downloads'),
+    path.join(require('os').homedir(), 'Desktop')
+  ];
+
+  for (var i = 0; i < searchDirs.length && !zipPath; i++) {
+    var dir = searchDirs[i];
+    if (!fs.existsSync(dir)) continue;
+    var files = fs.readdirSync(dir);
+    files.sort(function(a, b) {
+      return fs.statSync(path.join(dir, b)).mtimeMs - fs.statSync(path.join(dir, a)).mtimeMs;
+    });
+    for (var j = 0; j < files.length; j++) {
+      var f = files[j];
+      if ((f.startsWith('知行案例库_导出') || f.startsWith('知行案例库')) && f.endsWith('.zip')) {
+        zipPath = path.join(dir, f);
+        break;
+      }
+    }
+  }
+
+  if (!zipPath) {
+    console.log('========================================');
+    console.log('  错误：找不到导出的 zip 文件');
+    console.log('========================================');
+    console.log('');
+    console.log('请按以下步骤操作：');
+    console.log('1. 打开 admin.html，点「📥 导出并同步」');
+    console.log('2. 浏览器下载 zip 文件');
+    console.log('3. 重新双击「同步到网站.bat」');
+    console.log('');
+    console.log('已搜索的目录：');
+    searchDirs.forEach(function(d) { console.log('  ' + d); });
     process.exit(1);
+  }
+
+  // 重命名为标准名称
+  if (zipPath !== ZIP_FILE) {
+    if (fs.existsSync(ZIP_FILE)) fs.unlinkSync(ZIP_FILE);
+    fs.copyFileSync(zipPath, ZIP_FILE);
+    console.log('找到文件：' + path.basename(zipPath));
   }
 
   // 3. 备份当前 data.js
